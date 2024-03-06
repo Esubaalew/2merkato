@@ -79,9 +79,15 @@ def get_businesses(business_url):
                     h4_element = listing.find('h4')
                     if h4_element:
                         a_element = h4_element.find('a')
+                        business_detail_url = DOMAIN + a_element['href']
+                        
+            
+                        business_details = get_business_details(business_detail_url)
+
                         business_dict = {
                             'name': a_element.get_text(strip=True),
-                            'href': DOMAIN + a_element['href']
+                            'href': business_detail_url,
+                            'details': business_details
                         }
                         business_list.append(business_dict)
 
@@ -99,3 +105,26 @@ def get_businesses(business_url):
     except Exception as e:
         logging.error(f"Error scraping {business_url}: {e}")
         return []
+
+def get_business_details(business_detail_url):
+    try:
+        req = Request(business_detail_url, headers={'User-Agent': 'Mozilla/5.0'})
+        page = urlopen(req).read().decode('utf-8')
+        soup = BeautifulSoup(page, 'html.parser')
+
+        details_table = soup.find('table', {'class': 'table-condensed'})
+        details_dict = {}
+
+        if details_table:
+            for row in details_table.find_all('tr'):
+                columns = row.find_all('td')
+                if len(columns) == 2:
+                    key = columns[0].get_text(strip=True)
+                    value = columns[1].get_text(strip=True)
+                    details_dict[key] = value
+
+        return details_dict
+
+    except Exception as e:
+        logging.error(f"Error scraping {business_detail_url}: {e}")
+        return {}
