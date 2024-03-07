@@ -267,7 +267,9 @@ def convert_csv_to_excel(csv_file_path: str, excel_file_path: str) -> None:
     print(f"Excel file '{excel_file_path}' created successfully.")
 
 
-
-if __name__ == "__main__":
+def main():
     scrape_to_csv()
     convert_csv_to_excel('output.csv', 'output.xlsx')
+
+if __name__ == "__main__":
+    main()
